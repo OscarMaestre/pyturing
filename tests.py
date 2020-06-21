@@ -1,19 +1,21 @@
 #!/usr/bin/python3
 
 import unittest
-from Instruction import *
-from Tape import *
-from Program import *
+import os.path
+from pyturing.Program import *
+from pyturing.Instruction import *
+from pyturing.Tape import *
+
 
 class TestInstruction(unittest.TestCase):
     def test_num_elements(self):
-        str_instruction="S0, 0, 1, L, S0"
+        str_instruction="S0, 0, 1, L, S4"
         instruction=Instruction()
         instruction.build(str_instruction)
         self.assertEqual(instruction.get_if_in_state(), "S0")
         self.assertEqual(instruction.get_if_head_is(), "0")
         self.assertEqual(instruction.get_element_to_write(), "1")
-        self.assertEqual(instruction.get_new_state(), "S0")
+        self.assertEqual(instruction.get_new_state(), "S4")
     
     def test_num_elements_with_spaces(self):
         str_instruction="S0, 1, 0,    R       ,S1"
@@ -116,9 +118,23 @@ class TestInstruction(unittest.TestCase):
     def test_program_with_log1(self):
         tape=Tape()
         tape.set_string("0101")
-        str_program="S0, 0, 1, R, S0;S0, 1, 0, L, S0"
+        str_program="S0, 0, 1, R, S0;S0, 1, 0, L, S2"
         program=Program(tape)
         program.build(str_program)
-        program.run(log=True)
+        with self.assertRaises(StopProgram):    
+            program.run(log=False)
+
+    def test_load_external_program(self):
+        filepath=os.path.join("examples", "increment_number.txt")
+        tape=Tape()
+        tape.set_string("000111")
+        for i in range(0, 5):
+            tape.move_right()
+        program=Program(tape)
+        program.load_file_program(filepath)
+        program.run()
+
+
+    
 if __name__ == "__main__":
     unittest.main()

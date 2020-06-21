@@ -1,4 +1,4 @@
-from Instruction import *
+from .Instruction import *
 
 class InvalidProgramError(Exception):
     def __init__(self, str_instruction, line_no, message):
@@ -43,6 +43,7 @@ class Program(object):
         super().__init__()
         self.sentences=[]
         self.tape=tape
+
     def build(self, str_program):
         lines=str_program.split(";")
         
@@ -136,6 +137,12 @@ class Program(object):
             error="Found instruction pair identical elements"
             raise InvalidInstructionPair(error, i1, i2, pos1, pos2)
 
+    def load_file_program(self, filepath):
+        with open(filepath, "r") as handle:
+            lines=handle.readlines()
+            text="".join(lines)
+            self.build(text)
+
     def look_for_errors_in_program(self):
         program_length=len(self.instructions)
         for pos1 in range(0, program_length):
@@ -151,16 +158,25 @@ class Program(object):
         
     def run(self, max_instructions=1000, log=True):
         for num_instructions_run in range(0, max_instructions):
-            tape_before=str(self.tape)
+            
             instruction_to_run=self.get_next_instruction_to_run()
+            
             if log:
                 print()
+                tape_before =str(self.tape)
+                state_before=self.current_state
                 print("----Step  "+str(num_instructions_run)+"----------")
                 print("\tTape before     :"+tape_before)
+                print("\tState before    :"+state_before)
                 print("\tInstruction run :"+str(instruction_to_run))
-                self.execute_instruction(instruction_to_run)
+            
+            self.execute_instruction(instruction_to_run)
+
+            if log:
                 tape_after=str(self.tape)
+                state_after=self.current_state
                 print("\tTape after:     :"+tape_after)
+                print("\tState after     :"+state_after)
                 print("----End of step : "+str(num_instructions_run)+"----------")
                 print()
             
@@ -188,9 +204,10 @@ class Program(object):
         
         self.tape.write_symbol(symbol_to_write)
         self.tape.move_to(move_to_symbol)
+        self.current_state=instruction.get_new_state()
     
     def execute_next_instruction(self):
         instruction=self.get_next_instruction_to_run()
         self.execute_instruction(instruction)
 
-        
+    

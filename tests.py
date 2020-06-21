@@ -77,15 +77,15 @@ class TestInstruction(unittest.TestCase):
         str_program="S0, 0, 1, R, S0;S0, 1, 0, L, S0"
         program=Program(tape)
         program.build(str_program)
-        program.execute_instruction()
+        program.execute_next_instruction()
         
         self.assertEqual(program.get_tape_string(), "1101")
 
-        program.execute_instruction()
+        program.execute_next_instruction()
         self.assertEqual(program.get_tape_string(), "1001")
         
         with self.assertRaises(InvalidTapePositionError):
-            program.execute_instruction()
+            program.execute_next_instruction()
 
     def test_program_error_different_symbols_to_write(self):
         tape=Tape()
@@ -108,10 +108,17 @@ class TestInstruction(unittest.TestCase):
         tape.set_string("0101")
         str_program="S0, 0, 1, R, S0;S1, 0, 1, L, S0;S0, 0, 1, R, S0"
         trozos=str_program.split(";")
-        print(trozos)
+        
         with self.assertRaises(InvalidInstructionPair):
             program=Program(tape)
             program.build(str_program)
 
+    def test_program_with_log1(self):
+        tape=Tape()
+        tape.set_string("0101")
+        str_program="S0, 0, 1, R, S0;S0, 1, 0, L, S0"
+        program=Program(tape)
+        program.build(str_program)
+        program.run(log=True)
 if __name__ == "__main__":
     unittest.main()

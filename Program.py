@@ -135,6 +135,7 @@ class Program(object):
         if they_are_identical:
             error="Found instruction pair identical elements"
             raise InvalidInstructionPair(error, i1, i2, pos1, pos2)
+
     def look_for_errors_in_program(self):
         program_length=len(self.instructions)
         for pos1 in range(0, program_length):
@@ -146,26 +147,50 @@ class Program(object):
                     instruction1,instruction2, pos1, pos2)
                 self.check_contradictory_movements(instruction1,instruction2, pos1, pos2)
                 self.check_identical_instructions(instruction1,instruction2, pos1, pos2)
-                
-                
+
+        
+    def run(self, max_instructions=1000, log=True):
+        for num_instructions_run in range(0, max_instructions):
+            tape_before=str(self.tape)
+            instruction_to_run=self.get_next_instruction_to_run()
+            if log:
+                print()
+                print("----Step  "+str(num_instructions_run)+"----------")
+                print("\tTape before     :"+tape_before)
+                print("\tInstruction run :"+str(instruction_to_run))
+                self.execute_instruction(instruction_to_run)
+                tape_after=str(self.tape)
+                print("\tTape after:     :"+tape_after)
+                print("----End of step : "+str(num_instructions_run)+"----------")
+                print()
+            
+
+
+
+    def get_next_instruction_to_run(self):
+        for pos in range(0, len(self.instructions)):
+            instruction=self.instructions[pos]
+            right_symbol=(instruction.get_if_head_is()==self.tape.get_current_symbol())
+            right_state=(instruction.get_if_in_state()==self.current_state)
+            if right_state and right_symbol:
+                return instruction
+        raise StopProgram
 
     def get_tape(self):
         return self.tape
+
     def get_tape_string(self):
         return self.tape.get_tape_string()
-    def execute_instruction(self):
-        instruction_executed=False
-        self.current_symbol_in_tape=self.tape.get_current_symbol()
-        for pos in range(0, len(self.instructions)):
-            instruction=self.instructions[pos]
-            right_symbol=(instruction.get_if_head_is()==self.current_symbol_in_tape)
-            right_state=(instruction.get_if_in_state()==self.current_state)
-            if  right_state and right_symbol:
-                move_to_symbol=instruction.get_move_to()
-                symbol_to_write=instruction.get_element_to_write()
-                self.tape.write_symbol(symbol_to_write)
-                self.tape.move_to(move_to_symbol)
-                instruction_executed=True
-        #For end
-        if not instruction_executed:
-            raise StopProgram
+
+    def execute_instruction(self, instruction):
+        move_to_symbol      =   instruction.get_move_to()
+        symbol_to_write     =   instruction.get_element_to_write()
+        
+        self.tape.write_symbol(symbol_to_write)
+        self.tape.move_to(move_to_symbol)
+    
+    def execute_next_instruction(self):
+        instruction=self.get_next_instruction_to_run()
+        self.execute_instruction(instruction)
+
+        

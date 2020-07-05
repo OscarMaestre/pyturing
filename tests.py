@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import unittest
 import os.path
@@ -27,6 +27,12 @@ class TestInstruction(unittest.TestCase):
         self.assertEqual(instruction.get_move_to(), "R")
         self.assertEqual(instruction.get_new_state(), "S1")
     
+    def test_instruction_with_new_line(self):
+        str_instruction1="\nS0, 1, 0     R      ,L"
+        instruction=Instruction()
+        with self.assertRaises(InvalidInstructionError):
+            instruction.build(str_instruction1)
+
     def test_exception_1(self):
         str_instruction1="S0, 1, 0     R      ,L"
         instruction=Instruction()
@@ -89,6 +95,13 @@ class TestInstruction(unittest.TestCase):
         with self.assertRaises(InvalidTapePositionError):
             program.execute_next_instruction()
 
+    def test_program2(self):
+        tape=Tape()
+        tape.set_string("0101")
+        str_program="\nS0, 0, 1, R, S0;S0, 1, 0, L, S0;"
+        program=Program(tape)
+        program.build(str_program)
+        
     def test_program_error_different_symbols_to_write(self):
         tape=Tape()
         tape.set_string("0101")
@@ -132,7 +145,8 @@ class TestInstruction(unittest.TestCase):
             tape.move_right()
         program=Program(tape)
         program.load_file_program(filepath)
-        program.run()
+        with self.assertRaises(StopProgram):
+            program.run()
 
 
     

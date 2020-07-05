@@ -45,6 +45,7 @@ class Program(object):
         self.tape=tape
 
     def build(self, str_program):
+        str_program=str_program.strip()
         lines=str_program.split(";")
         
         self.instructions=[]

@@ -5,10 +5,12 @@ class InvalidInstructionError(Exception):
 
 class Instruction(object):
     def build(self, str_sentence):
+        str_sentence=str_sentence.strip()
         elements_with_spaces=str_sentence.split(",")
         elements=[elem.strip() for elem in elements_with_spaces]
         
         if len(elements)!=5:
+            print(str_sentence)
             raise InvalidInstructionError
         self.if_in_state=elements[0]
         if self.if_in_state=="":

@@ -18,6 +18,7 @@ class GUI(object):
         
         self.stringvartape=tk.StringVar()
         self.stringvartape.set("00000"*10)
+        self.stringvarcurrentstate=tk.StringVar()
 
         self.buildGUI()
         self.tape=Tape()
@@ -36,6 +37,7 @@ class GUI(object):
         self.control_limit_label=tk.Label(master=self.root, text="No of instructions to run")
         self.control_limit_label.grid(row=1, column=9, sticky="ew")
 
+        
         self.control_instruction_limit=tk.Entry(master=self.root)
         self.control_instruction_limit.grid(row=1, column=10, columnspan=2, sticky="ew")
 
@@ -45,14 +47,18 @@ class GUI(object):
         self.control_run_all=tk.Button(master=self.root, text="Run all", command=self.run_all_pressed)
         self.control_run_all.grid(row=3, column=9, columnspan=3, sticky="nsew")
 
-        self.control_warnings=tk.Text(master=self.root)
-        self.control_warnings.grid(row=4, column=9, columnspan=3, rowspan=3, sticky="nsew")
+        self.control_label_state=tk.Label(master=self.root, text="Current state:")
+        self.control_label_state.grid(row=4, column=9, columnspan=3, sticky="nsew")
 
-        self.root.grid_rowconfigure(0, weight=1)
-        self.root.grid_rowconfigure(1, weight=1)
-        self.root.grid_rowconfigure(2, weight=1)
-        self.root.grid_rowconfigure(3, weight=1)
-        self.root.grid_rowconfigure(4, weight=1)
+        self.control_current_symbol_in_tape=tk.Label(master=self.root, text="Current symbol")
+        self.control_current_symbol_in_tape.grid(row=5, column=9, columnspan=3, sticky="nswe")
+        self.control_warnings=tk.Text(master=self.root)
+        self.control_warnings.grid(row=7, column=9, columnspan=3, rowspan=2, sticky="nsew")
+
+
+        for i in range(0, 9):
+            self.root.grid_rowconfigure(i, weight=1)    
+        
         for i in range(0, 12):
             self.root.grid_columnconfigure(i, weight=1)
 
@@ -70,9 +76,18 @@ class GUI(object):
         
             
 
+    def highlight_next_instruction_to_run(self):
+        if self.program==None:
+            return
+        next_instruction=self.program.get_next_instruction_to_run()
+        program_text=self.control_program.get("1.0", tk.END)
+        
+
     def run_one_instruction(self):
+        
         self.program.execute_next_instruction()
         self.update_tape_control()
+        self.highlight_next_instruction_to_run()
         
     def update_tape_control(self):
         tape_text=str(self.tape)
